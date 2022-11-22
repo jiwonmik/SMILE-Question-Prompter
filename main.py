@@ -4,7 +4,6 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 
-
 import re
 
 
@@ -58,19 +57,28 @@ class LemmatizationWithPOSTagger(object):
             return wordnet.NOUN
 
     def pos_tag(self,tokens):
-        # doesn't have to be checked
-        skip_tokens=[".",",","?","'","\""]
-        tokens=[token for token in tokens if token not in skip_tokens]
-
         # find the pos tagginf for each tokens [('What', 'WP'), ('can', 'MD'), ('I', 'PRP') ....
         pos_tokens = nltk.pos_tag(tokens)
 
-        # lemmatization using pos tagg   
-        # convert into feature set of [('What', 'What', ['WP']), ('can', 'can', ['MD']), ... ie [original WORD, Lemmatized word, POS tag]
-        lemmatized = []
+        wn_tag = []
         for word, pos in pos_tokens:
-            lemmatized.append((word, lemmatizer.lemmatize(word, self.get_wordnet_pos(pos)),pos))
+            wn_tag.append((word, self.get_wordnet_pos(pos)))
+        
+        # lemmatization using pos tag   
+        # convert into feature set of [('What', 'What', ['WP']), ('can', 'can', ['MD']), ... ie [original WORD, Lemmatized word, POS tag]
+        # for word, pos in pos_tokens:
+        #     lemmatized.append((word, lemmatizer.lemmatize(word, self.get_wordnet_pos(pos)),pos))
 
+        lemmatized = []  
+        for word, pos in wn_tag:
+            lemmas = wordnet._morphy(word,pos)
+            lemma=word
+            if lemmas:
+                min_lemmas = [lemma for lemma in sorted(lemmas, key=len) if lemma !=word]
+                if min_lemmas:
+                    lemma = min_lemmas[0]
+            lemmatized.append((word, lemma, pos)) 
+        
         return lemmatized
 
         # doesn't have to be preprocessed
@@ -87,7 +95,7 @@ class LemmatizationWithPOSTagger(object):
 Check if the question is a valid one.
 """
 def check_question(keywords, text):
-    if all(word in text[0] for word in keywords):
+    if all(word in text for word in keywords):
         print("valid question")
     else:
         print("unvalid question")
@@ -118,9 +126,9 @@ print("====================")
 현재 문제: keyword가 기본형이고 text에서 변형 단어가 쓰이면 ok, 하지만 그 반대면 확인 불가,,
 => keywords 입력으로 받을 때 NOUN/ADJ/VERB/ADV 구분해서 받기?
 """
-keywords=["quickly", "create", "simple", "innovates"]
+keywords=["quick", "create", "man"]
 keyword_pos_token=lemmatization_using_pos_tagger.pos_tag(keywords)
-# print(f"Keyword with pos tag: ",keyword_pos_token)
+print(f"Keyword with pos tag: ",keyword_pos_token)
 
 preprocessed_keyword=lemmatization_using_pos_tagger.get_keywords(keyword_pos_token)
 print(f"Preprocessed keywords: ", preprocessed_keyword)
@@ -128,5 +136,3 @@ print("====================")
 
 # check if the question is a valid one
 check_question(preprocessed_keyword, preprocessed_text)
-
-
