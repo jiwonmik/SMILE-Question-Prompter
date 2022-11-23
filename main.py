@@ -5,6 +5,9 @@ from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 
 import re
+from pattern.text.en import singularize
+
+PLURAL_TAG = ["NNS", "NNPS"]
 
 
 class Tokenizer(object):
@@ -59,34 +62,22 @@ class LemmatizationWithPOSTagger(object):
     def pos_tag(self,tokens):
         # find the pos tagginf for each tokens [('What', 'WP'), ('can', 'MD'), ('I', 'PRP') ....
         pos_tokens = nltk.pos_tag(tokens)
-
+    
+        processed=[]
         wn_tag = []
         for word, pos in pos_tokens:
-            wn_tag.append((word, self.get_wordnet_pos(pos)))
+            if pos in PLURAL_TAG:
+                # convert plural to singular
+                processed.append((word, singularize(word),pos))    
+            else:
+                wn_tag.append((word, self.get_wordnet_pos(pos)))
         
         # lemmatization using pos tag   
         # convert into feature set of [('What', 'What', ['WP']), ('can', 'can', ['MD']), ... ie [original WORD, Lemmatized word, POS tag]
-        # for word, pos in pos_tokens:
-        #     lemmatized.append((word, lemmatizer.lemmatize(word, self.get_wordnet_pos(pos)),pos))
-
-        lemmatized = []  
         for word, pos in wn_tag:
-            lemmas = wordnet._morphy(word,pos)
-            lemma=word
-            if lemmas:
-                min_lemmas = [lemma for lemma in sorted(lemmas, key=len) if lemma !=word]
-                if min_lemmas:
-                    lemma = min_lemmas[0]
-            lemmatized.append((word, lemma, pos)) 
-        
-        return lemmatized
+            processed.append((word, lemmatizer.lemmatize(word, pos),pos))
 
-        # doesn't have to be preprocessed
-        # skip_tokens=["DT"]
-        # temp=[]
-        # for sent in pos_tokens:
-        #     temp.append([tokens for tokens in sent if tokens[1] not in skip_tokens])
-        # pos_tokens=temp
+        return processed
 
     def get_keywords(self,tokens):
         return [token[1] for token in tokens]
@@ -101,8 +92,8 @@ def check_question(keywords, text):
         print("unvalid question")
 
 # example text
-text = "For some quick analysis, creating a corpus could be overkill. If all you need is a word list, there are simpler ways to achieve that goal."
-#text= "women are strong."
+text = "How can people from different countries communicate?"
+keywords=["How", "person", "men", "creating"]
 
 lemmatizer = WordNetLemmatizer()
 tokenizer = Tokenizer()
@@ -126,7 +117,8 @@ print("====================")
 현재 문제: keyword가 기본형이고 text에서 변형 단어가 쓰이면 ok, 하지만 그 반대면 확인 불가,,
 => keywords 입력으로 받을 때 NOUN/ADJ/VERB/ADV 구분해서 받기?
 """
-keywords=["quick", "create", "man"]
+# step 4 preprocess keywords
+keywords=[w.lower() for w in keywords]
 keyword_pos_token=lemmatization_using_pos_tagger.pos_tag(keywords)
 print(f"Keyword with pos tag: ",keyword_pos_token)
 
