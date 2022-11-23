@@ -7,6 +7,9 @@ from nltk.corpus import stopwords
 import re
 from pattern.text.en import singularize
 
+from gensim.models import KeyedVectors
+
+
 PLURAL_TAG = ["NNS", "NNPS"]
 
 
@@ -34,6 +37,9 @@ class Tokenizer(object):
 
         # tokenization in each sentences
         words = sum([self.tokenizer.tokenize(sent) for sent in question_text],[])
+
+        # delete duplicated words
+        words = list(set(words))
 
         # stop_words =set(stopwords.words('english'))
         # words=[w for w in words if w not in stop_words]
@@ -86,13 +92,14 @@ class LemmatizationWithPOSTagger(object):
 Check if the question is a valid one.
 """
 def check_question(keywords, text):
-    if all(word in text for word in keywords):
-        print("valid question")
+    not_included=[w for w in keywords if w not in text]
+    if not_included:
+        return not_included
     else:
-        print("unvalid question")
+        return False
 
 # example text
-text = "How can people from different countries communicate?"
+question = "How can a man communicate with foreigners?"
 keywords=["How", "person", "men", "creating"]
 
 lemmatizer = WordNetLemmatizer()
@@ -100,7 +107,7 @@ tokenizer = Tokenizer()
 lemmatization_using_pos_tagger = LemmatizationWithPOSTagger()
 
 #step 1 split document into sentence followed by tokenization
-tokens = tokenizer.preprocessing(text)
+tokens = tokenizer.preprocessing(question)
 print("====================")
 #print(f"tokens:", tokens)
 
@@ -113,10 +120,6 @@ preprocessed_text = lemmatization_using_pos_tagger.get_keywords(lemma_pos_token)
 print(f"Preprocessed text: ", preprocessed_text)
 print("====================")
 
-"""
-현재 문제: keyword가 기본형이고 text에서 변형 단어가 쓰이면 ok, 하지만 그 반대면 확인 불가,,
-=> keywords 입력으로 받을 때 NOUN/ADJ/VERB/ADV 구분해서 받기?
-"""
 # step 4 preprocess keywords
 keywords=[w.lower() for w in keywords]
 keyword_pos_token=lemmatization_using_pos_tagger.pos_tag(keywords)
@@ -126,5 +129,31 @@ preprocessed_keyword=lemmatization_using_pos_tagger.get_keywords(keyword_pos_tok
 print(f"Preprocessed keywords: ", preprocessed_keyword)
 print("====================")
 
-# check if the question is a valid one
-check_question(preprocessed_keyword, preprocessed_text)
+"""
+ check if the question is a valid one
+"""
+# 1. CHECK syntactic similarity :
+syntactic = check_question(preprocessed_keyword, preprocessed_text)
+
+if syntactic:
+    print("\nHave to check semantic similarity")
+else:
+    print("valid question")
+
+# 2. CHECK semantic similarity :
+def check_semantic(text):
+    # loading the downloaded model
+    model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+    # the model is loaded. It can be used to perform all of the tasks mentioned above.
+    # print(model.vectors.shape)
+    # (3000000, 300)
+
+    question=set(preprocessed_text)
+    for word in syntactic:
+        similar_words=[w[0] for w in model.most_similar(positive=[word])]
+        intersection=[common for common in similar_words if common in question]
+        if not intersection:
+            print(f"{word} is not in the question.")
+            print("unvalid question")
+            break
+
