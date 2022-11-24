@@ -114,12 +114,13 @@ def check_semantic(text):
 """
  check if the question is a valid one
 """
-print(f"Question: {question}")
-print(f"keywords: {keywords}")
 
 # example text
 question = "How can a man communicate with foreigners?"
 keywords=["How", "person", "men", "creating"]
+
+print(f"Question: {question}")
+print(f"keywords: {keywords}")
 
 lemmatizer = WordNetLemmatizer()
 tokenizer = Tokenizer()
@@ -153,11 +154,11 @@ print("====================")
 syntactic = syntactic_check(preprocessed_keyword, preprocessed_text)
 
 if syntactic:
-    print("\nHave to check semantic similarity")
+    print("\nHave to check semantic similarity\n")
     # 2. CHECK semantic similarity :
     if check_semantic(syntactic):
-        print("valid question")
+        print("This question is valid question")
     else:
-        print("unvalid question")
+        print("This question is unvalid question")
 else:
-    print("valid question")
+    print("This question is valid question")
