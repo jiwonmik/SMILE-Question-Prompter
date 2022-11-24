@@ -65,7 +65,7 @@ class LemmatizationWithPOSTagger(object):
             # As default pos in lemmatization is Noun
             return wordnet.NOUN
 
-    def pos_tag(self,tokens):
+    def convert_to_base(self,tokens):
         # find the pos tagginf for each tokens [('What', 'WP'), ('can', 'MD'), ('I', 'PRP') ....
         pos_tokens = nltk.pos_tag(tokens)
     
@@ -88,15 +88,34 @@ class LemmatizationWithPOSTagger(object):
     def get_keywords(self,tokens):
         return [token[1] for token in tokens]
 
-"""
-Check if the question is a valid one.
-"""
-def check_question(keywords, text):
+def syntactic_check(keywords, text):
     not_included=[w for w in keywords if w not in text]
     if not_included:
         return not_included
     else:
         return False
+
+def check_semantic(text):
+    # loading the downloaded model
+    model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+    # the model is loaded. It can be used to perform all of the tasks mentioned above.
+    # print(model.vectors.shape)
+    # (3000000, 300)
+
+    question=set(preprocessed_text)
+    for word in syntactic:
+        similar_words=[w[0] for w in model.most_similar(positive=[word])]
+        intersection=[common for common in similar_words if common in question]
+        if not intersection:
+            print(f"\"{word}\" is not in the question.")
+            return False
+    return True
+
+"""
+ check if the question is a valid one
+"""
+print(f"Question: {question}")
+print(f"keywords: {keywords}")
 
 # example text
 question = "How can a man communicate with foreigners?"
@@ -112,7 +131,7 @@ print("====================")
 #print(f"tokens:", tokens)
 
 #step 2 lemmatization using pos tagger 
-lemma_pos_token = lemmatization_using_pos_tagger.pos_tag(tokens)
+lemma_pos_token = lemmatization_using_pos_tagger.convert_to_base(tokens)
 # print(f"Tokens with pos tag:", lemma_pos_token)
 
 #step 3 get keywords from the sentence
@@ -122,38 +141,23 @@ print("====================")
 
 # step 4 preprocess keywords
 keywords=[w.lower() for w in keywords]
-keyword_pos_token=lemmatization_using_pos_tagger.pos_tag(keywords)
+keyword_pos_token=lemmatization_using_pos_tagger.convert_to_base(keywords)
 print(f"Keyword with pos tag: ",keyword_pos_token)
 
 preprocessed_keyword=lemmatization_using_pos_tagger.get_keywords(keyword_pos_token)
 print(f"Preprocessed keywords: ", preprocessed_keyword)
 print("====================")
 
-"""
- check if the question is a valid one
-"""
+
 # 1. CHECK syntactic similarity :
-syntactic = check_question(preprocessed_keyword, preprocessed_text)
+syntactic = syntactic_check(preprocessed_keyword, preprocessed_text)
 
 if syntactic:
     print("\nHave to check semantic similarity")
+    # 2. CHECK semantic similarity :
+    if check_semantic(syntactic):
+        print("valid question")
+    else:
+        print("unvalid question")
 else:
     print("valid question")
-
-# 2. CHECK semantic similarity :
-def check_semantic(text):
-    # loading the downloaded model
-    model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
-    # the model is loaded. It can be used to perform all of the tasks mentioned above.
-    # print(model.vectors.shape)
-    # (3000000, 300)
-
-    question=set(preprocessed_text)
-    for word in syntactic:
-        similar_words=[w[0] for w in model.most_similar(positive=[word])]
-        intersection=[common for common in similar_words if common in question]
-        if not intersection:
-            print(f"{word} is not in the question.")
-            print("unvalid question")
-            break
-
