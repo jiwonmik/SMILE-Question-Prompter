@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <title>Similarity Check</title>
+</head>
+<body>
+    <h2> 단어와 단어 유사도 </h2>
+    <form id="words-form" class="hidden">
+        <input 
+            id="word1"
+            required maxlength="50" 
+            type="text" 
+            placeholder="sentence or word"/>
+        <input 
+            id="word2"
+            required maxlength="15" 
+            type="text" 
+            placeholder="word"/>
+        <input type="submit" value="Similarity" />
+    </form>
+    <h2 id="most-sim-word" class="hidden"></h2>
+    <h2 id="most-sim-value" class="hidden"></h2>
+    <h2> 문장과 단어 유사도 </h2>
+    <form id="sents-form" class="hidden">
+        <input 
+            id="sent1"
+            required maxlength="50" 
+            type="text" 
+            placeholder="sent"/>
+        <input 
+            id="word"
+            required maxlength="15" 
+            type="text" 
+            placeholder="word"/>
+        <input type="submit" value="Similarity" />
+    </form>
+    <h2 id="sent-similarity" class="hidden"></h2>
+    <script src="testpage.js"></script>
+</body>
