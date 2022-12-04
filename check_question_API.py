@@ -30,7 +30,7 @@ def check_sentence(input: Input):
     keyword = nlp(input.keyword)
 
     similarity={
-        "similarity": question.similarity(keyword)
+        "similarity": round(question.similarity(keyword),3)
     }
 
     return similarity
@@ -40,12 +40,13 @@ def check_word(input: Input):
     question = nlp(input.question)
     keyword = nlp(input.keyword)
 
-    similarity={}
-    for token in question:
-        similarity["similarity"] = (token.text,token.similarity(keyword[0]))
-    most_similar={"most_similars": []}
+    similarity={"similarity":[],"most_similars":[]}
     for token in question:
         s = token.similarity(keyword[0])
+
+        similarity["similarity"].append({"word": token.text, "similarity": round(s, 3)})
+
         if s > 0.2:
-            most_similar["most_similars"].append({"word": token.text, "similarity": s})
-    return most_similar
+            similarity["most_similars"].append({"word": token.text, "similarity": round(s,3)})
+    
+    return similarity
