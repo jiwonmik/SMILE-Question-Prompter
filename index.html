@@ -5,37 +5,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
     <title>Similarity Check</title>
 </head>
 <body>
     <h2> 단어와 단어 유사도 </h2>
+    <h3> 문장 속 단어 또는 단일 단어</h3>
     <form id="words-form" class="hidden">
-        <input 
-            id="word1"
-            required maxlength="50" 
-            type="text" 
-            placeholder="sentence or word"/>
-        <input 
-            id="word2"
-            required maxlength="15" 
-            type="text" 
-            placeholder="word"/>
+        <textarea id="word1" placeholder="sentence or word"></textarea>
+        <textarea id="word2" placeholder="word"></textarea>
         <input type="submit" value="Similarity" />
     </form>
-    <h2 id="most-sim-word" class="hidden"></h2>
-    <h2 id="most-sim-value" class="hidden"></h2>
+    <h4 id="most-sim-word" class="hidden"></h2>
+    <h4 id="most-sim-value" class="hidden"></h2>
     <h2> 문장과 단어 유사도 </h2>
     <form id="sents-form" class="hidden">
-        <input 
-            id="sent1"
-            required maxlength="50" 
-            type="text" 
-            placeholder="sent"/>
-        <input 
-            id="word"
-            required maxlength="15" 
-            type="text" 
-            placeholder="word"/>
+        <textarea id="sent1" placeholder="sent"></textarea>
+        <textarea id="word"  placeholder="word"></textarea>
         <input type="submit" value="Similarity" />
     </form>
     <h2 id="sent-similarity" class="hidden"></h2>
