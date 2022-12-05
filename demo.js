@@ -26,8 +26,8 @@ function onWordSubmit(event){
         .then((res) => {
             console.log(res)
             console.log(res.data)
-            most_sim_word = res.data.most_similar.word
-            most_sim_value = res.data.most_similar.similarity
+            most_sim_word = res.data.most_similars[0].word
+            most_sim_value = res.data.most_similars[0].similarity
             simWord.innerText = `most similar word: ${most_sim_word}`;
             simWord.classList.remove(HIDDEN_CLASSNAME);
             simValue.innerText = `similarity: ${most_sim_value}`
