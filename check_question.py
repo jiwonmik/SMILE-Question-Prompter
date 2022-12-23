@@ -71,7 +71,8 @@ def check_word(input: Input):
     question_info={
         "question": question.text,
         "is_valid": False,
-        "included": []
+        "included": [],
+        "not_included":[]
     }
 
     for word, vector in vectors:
@@ -85,5 +86,8 @@ def check_word(input: Input):
                 question_info["is_valid"]=True
                 question_info["included"].append(included)
                 break
+            else:
+                question_info["not_included"].append(included)
+
 
     return question_info
