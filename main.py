@@ -1,164 +1,93 @@
-import nltk
-from nltk import PorterStemmer, LancasterStemmer, WordNetLemmatizer
-from nltk.tokenize import word_tokenize
-from nltk.corpus import wordnet
-from nltk.corpus import stopwords
+import spacy
 
-import re
-from pattern.text.en import singularize
+from fastapi import FastAPI
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
-from gensim.models import KeyedVectors
+from operator import itemgetter
+import json
 
+app = FastAPI()
 
-PLURAL_TAG = ["NNS", "NNPS"]
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+nlp = spacy.load("en_core_web_lg")
 
-class Tokenizer(object):
-    """
-    split the document into sentences and tokenize each sentence
-    """
-    def __init__(self):
-        self.splitter = nltk.data.load('tokenizers/punkt/english.pickle')
-        self.tokenizer = nltk.tokenize.TreebankWordTokenizer()
+class Input(BaseModel):
+    question: str
+    keyword: str
 
-    def preprocessing(self,text):
-        """
-        in: "What can I say about this place."
-        out : ['What', 'can', 'I', 'say', 'about', 'this', 'place', '.']
-        """
-        # split into single sentence
-        sentences = self.splitter.tokenize(text)
-
-        question_text=[]
-        for sent in sentences:
-            sent=re.sub("[^a-zA-Z]", " ", sent)   # remove all besides alphabets
-            text=sent.lower()                    # lower   
-            question_text.append(text)
-
-        # tokenization in each sentences
-        words = sum([self.tokenizer.tokenize(sent) for sent in question_text],[])
-
-        # delete duplicated words
-        words = list(set(words))
-
-        # stop_words =set(stopwords.words('english'))
-        # words=[w for w in words if w not in stop_words]
-
-        return words
-
-class LemmatizationWithPOSTagger(object):
-    def __init__(self):
-        pass
-    def get_wordnet_pos(self,treebank_tag):
-        """
-        return WORDNET POS compliance to WORDENT lemmatization (a,n,r,v) 
-        """
-        if treebank_tag.startswith('J'):
-            return wordnet.ADJ
-        elif treebank_tag.startswith('V'):
-            return wordnet.VERB
-        elif treebank_tag.startswith('N'):
-            return wordnet.NOUN
-        elif treebank_tag.startswith('R'):
-            return wordnet.ADV
-        else:
-            # As default pos in lemmatization is Noun
-            return wordnet.NOUN
-
-    def convert_to_base(self,tokens):
-        # find the pos tagginf for each tokens [('What', 'WP'), ('can', 'MD'), ('I', 'PRP') ....
-        pos_tokens = nltk.pos_tag(tokens)
+@app.post("/sentence_similarity")
+def check_sentence(input: Input):
+    question = nlp(input.question)
     
-        processed=[]
-        wn_tag = []
-        for word, pos in pos_tokens:
-            if pos in PLURAL_TAG:
-                # convert plural to singular
-                processed.append((word, singularize(word),pos))    
+    keyword = nlp(input.keyword)
+
+    similarity={
+        "similarity": round(question.similarity(keyword),3)
+    }
+
+    return similarity
+
+@app.post("/word_similarity")
+def check_word(input: Input):
+    question = nlp(input.question)
+    keyword = nlp(input.keyword)
+
+    question_token = [token.lemma_ for token in question]
+    vectors = [(word, nlp.vocab[word]) for word in question_token]
+
+    similarity={"similarity":[],"similars":[]}
+
+    for word, vector in vectors:
+        sim = vector.similarity(keyword[0])
+        similarity["similarity"].append({"word": word, "similarity": round(sim, 3)})
+
+        if sim > 0.1:
+            similarity["similars"].append({"word": word, "similarity": round(sim,3)})
+
+    most_similar=sorted(similarity["similars"], key=itemgetter('similarity'), reverse=True)[0]
+    similarity["most_similar"]={
+        "word": most_similar["word"],
+        "similarity": most_similar["similarity"]
+    }
+    return similarity
+
+@app.post("/check_question")
+def check_word(input: Input):
+    question = nlp(input.question)
+    keywords = [nlp(word) for word in input.keyword.split(',')]
+
+    # lemmatization
+    question_token = [token.lemma_ for token in question]
+    vectors = [(word, nlp.vocab[word]) for word in question_token]
+
+    question_info={
+        "question": question.text,
+        "is_valid": False,
+        "included": [],
+        "not_included":[]
+    }
+
+    for word, vector in vectors:
+        for keyword in keywords:
+            sim=vector.similarity(keyword)
+            included = { 
+                "question_token": word, 
+                "keyword": keyword.text,
+                "similarity": round(sim,3)}
+            if sim > 0.5:
+                question_info["is_valid"]=True
+                question_info["included"].append(included)
+                break
             else:
-                wn_tag.append((word, self.get_wordnet_pos(pos)))
-        
-        # lemmatization using pos tag   
-        # convert into feature set of [('What', 'What', ['WP']), ('can', 'can', ['MD']), ... ie [original WORD, Lemmatized word, POS tag]
-        for word, pos in wn_tag:
-            processed.append((word, lemmatizer.lemmatize(word, pos),pos))
-
-        return processed
-
-    def get_keywords(self,tokens):
-        return [token[1] for token in tokens]
-
-def syntactic_check(keywords, text):
-    not_included=[w for w in keywords if w not in text]
-    if not_included:
-        return not_included
-    else:
-        return False
-
-def check_semantic(text):
-    # loading the downloaded model
-    model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
-    # the model is loaded. It can be used to perform all of the tasks mentioned above.
-    # print(model.vectors.shape)
-    # (3000000, 300)
-
-    question=set(preprocessed_text)
-    for word in syntactic:
-        similar_words=[w[0] for w in model.most_similar(positive=[word])]
-        intersection=[common for common in similar_words if common in question]
-        if not intersection:
-            print(f"\"{word}\" is not in the question.")
-            return False
-    return True
-
-"""
- check if the question is a valid one
-"""
-
-# example text
-question = "How can a man communicate with foreigners?"
-keywords=["How", "person", "men", "creating"]
-
-print(f"Question: {question}")
-print(f"keywords: {keywords}")
-
-lemmatizer = WordNetLemmatizer()
-tokenizer = Tokenizer()
-lemmatization_using_pos_tagger = LemmatizationWithPOSTagger()
-
-#step 1 split document into sentence followed by tokenization
-tokens = tokenizer.preprocessing(question)
-print("====================")
-#print(f"tokens:", tokens)
-
-#step 2 lemmatization using pos tagger 
-lemma_pos_token = lemmatization_using_pos_tagger.convert_to_base(tokens)
-# print(f"Tokens with pos tag:", lemma_pos_token)
-
-#step 3 get keywords from the sentence
-preprocessed_text = lemmatization_using_pos_tagger.get_keywords(lemma_pos_token)
-print(f"Preprocessed text: ", preprocessed_text)
-print("====================")
-
-# step 4 preprocess keywords
-keywords=[w.lower() for w in keywords]
-keyword_pos_token=lemmatization_using_pos_tagger.convert_to_base(keywords)
-print(f"Keyword with pos tag: ",keyword_pos_token)
-
-preprocessed_keyword=lemmatization_using_pos_tagger.get_keywords(keyword_pos_token)
-print(f"Preprocessed keywords: ", preprocessed_keyword)
-print("====================")
+                question_info["not_included"].append(included)
 
 
-# 1. CHECK syntactic similarity :
-syntactic = syntactic_check(preprocessed_keyword, preprocessed_text)
-
-if syntactic:
-    print("\nHave to check semantic similarity\n")
-    # 2. CHECK semantic similarity :
-    if check_semantic(syntactic):
-        print("This question is valid question")
-    else:
-        print("This question is unvalid question")
-else:
-    print("This question is valid question")
+    return question_info
