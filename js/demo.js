@@ -16,6 +16,7 @@ function onWordSubmit(event){
     const word1 = wordInput1.value;
     const word2 = wordInput2.value;
     const values = {
+        "id": "ww",
         "question": word1,
         "keyword": word2
     }
@@ -39,6 +40,7 @@ function onSentSubmit(event){
     const sent = sentInput1.value;
     const s_word = sentInput2.value;
     const values = {
+        "id": "sw",
         "question": sent,
         "keyword": s_word
     }
@@ -64,6 +66,7 @@ function onQuestionSubmit(event){
     const question_ = question.value;
     const keyword_ = keywords.value;
     const values = {
+        "id": "qk",
         "question": question_,
         "keyword": keyword_
     }
