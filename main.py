@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from operator import itemgetter
 import json, csv
 import logging
+from datetime import datetime
 
 logger = logging.getLogger("main")
 logging.basicConfig(level=logging.DEBUG)
@@ -37,7 +38,7 @@ app.add_middleware(
 nlp = spacy.load("en_core_web_lg")
 
 def write_req_res(data):
-    with open('/home/jiwon/log.csv', 'a') as f:
+    with open('/home/jiwon/myapi/logs/log.csv', 'a') as f:
         keys = data[0].keys()
         dict_writer = csv.DictWriter(f, fieldnames=keys)
         dict_writer.writerows(data)
@@ -52,39 +53,41 @@ async def set_body(request: Request, body: bytes):
         return {'type': 'http.request', 'body': body}
     request._receive = receive
 
-@app.middleware("http")
-async def some_middleware(request: Request, call_next):
-    req_body = await request.body()
-    await set_body(request, req_body)
-    response = await call_next(request)
+# @app.middleware("http")
+# async def some_middleware(request: Request, call_next):
+#     req_body = await request.body()
+#     req_json = await request.json()
+#     await set_body(request, req_body)
+#     response = await call_next(request)
 
-    # write to info.log file
-    res_body = b''
-    async for chunk in response.body_iterator:
-        res_body += chunk
+#     # write to info.log file
+#     res_body = b''
+#     async for chunk in response.body_iterator:
+#         res_body += chunk
 
-    # task = BackgroundTask(log_info, req_body, res_body)
+#     # task = BackgroundTask(log_info, req_body, res_body)
     
-    # write to log.csv file
-    data = []
-    req_str = req_body.decode('utf8')
-    req_json = json.loads(req_str)
-    res_str = res_body.decode('utf8')
-    res_json = json.loads(res_str)
-    
-    print(req_json["keywords"])
-    for i in res_json["included"]:
-        record = {'id_': req_json["id_"], 
-                'question': req_json["question"], 
-                'keywords': req_json["keywords"], 
-                'question_token': i["question_token"],
-                'keyword': i["keyword"],
-                'similarity': i["similarity"]}
-        data.append(record)
-    task = BackgroundTask(write_req_res, data)
+#     # write to log.csv file
+#     data = []
+#     # req_str = req_body.decode('utf8')
+#     # req_json = json.loads(req_str)
+#     res_str = res_body.decode('utf8')
+#     res_json = json.loads(res_str)
 
-    return Response(content=res_body, status_code=response.status_code, 
-        headers=dict(response.headers), media_type=response.media_type, background=task)
+#     print(req_json["keywords"])
+#     for i in res_json["included"]:
+#         record = {'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+#                 'id_': req_json["id_"], 
+#                 'question': req_json["question"], 
+#                 'keywords': req_json["keywords"], 
+#                 'question_token': i["question_token"],
+#                 'keyword': i["keyword"],
+#                 'similarity': i["similarity"]}
+#         data.append(record)
+#     task = BackgroundTask(write_req_res, data)
+
+#     return Response(content=res_body, status_code=response.status_code, 
+#         headers=dict(response.headers), media_type=response.media_type, background=task)
 
 class Input(BaseModel):
     id_: str
@@ -94,7 +97,6 @@ class Input(BaseModel):
 @app.post("/sentence_similarity")
 def check_sentence(input: Input):
     question = nlp(input.question)
-    
     keywords = nlp(input.keywords)
 
     similarity={
@@ -129,6 +131,7 @@ def check_word(input: Input):
 
 @app.post("/check_question")
 def check_word(input: Input):
+    id_ = input.id_
     question = nlp(input.question)
     keywords = [nlp(word) for word in input.keywords.split(',')]
 
@@ -142,7 +145,7 @@ def check_word(input: Input):
         "included": [],
         "not_included":[]
     }
-
+    data=[]
     for word, vector in vectors:
         for keyword in keywords:
             sim=vector.similarity(keyword)
@@ -153,8 +156,16 @@ def check_word(input: Input):
             if sim > 0.5:
                 question_info["is_valid"]=True
                 question_info["included"].append(included)
-                break
+                record = {'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        'id_': id_,
+                        'question': question.text,
+                        'keywords': ','.join([k.text for k in keywords]),
+                        'question_token': included["question_token"],
+                        'keyword': included["keyword"],
+                        'similarity': included["similarity"]}
+                data.append(record)
             else:
                 question_info["not_included"].append(included)
-
+    write_req_res(data)
+    
     return question_info
