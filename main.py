@@ -2,7 +2,6 @@ import spacy
 
 from fastapi import FastAPI, Request, Response
 from starlette.background import BackgroundTask
-from starlette.concurrency import iterate_in_threadpool
 from pydantic import BaseModel
 from starlette.types import Message
 from fastapi.middleware.cors import CORSMiddleware
@@ -56,7 +55,6 @@ async def set_body(request: Request, body: bytes):
 @app.middleware("http")
 async def some_middleware(request: Request, call_next):
     req_body = await request.body()
-    req_json = await request.json()
     await set_body(request, req_body)
     response = await call_next(request)
 
@@ -69,8 +67,11 @@ async def some_middleware(request: Request, call_next):
     
     # write to log.csv file
     data = []
+    req_str = req_body.decode('utf8')
+    req_json = json.loads(req_str)
     res_str = res_body.decode('utf8')
     res_json = json.loads(res_str)
+    
     print(req_json["keywords"])
     for i in res_json["included"]:
         record = {'id_': req_json["id_"], 
