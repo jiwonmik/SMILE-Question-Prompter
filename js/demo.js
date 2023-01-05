@@ -57,6 +57,5 @@ function onQuestionSubmit(event){
     })  
 }
 
-wordForm.addEventListener("submit", onWordSubmit)
 sentForm.addEventListener("submit", onSentSubmit)
 questionFrom.addEventListener("submit", onQuestionSubmit)
