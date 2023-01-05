@@ -18,7 +18,7 @@ function onWordSubmit(event){
     const values = {
         "id_": "ww",
         "question": word1,
-        "keyword": word2
+        "keywords": word2
     }
     const url = `http://127.0.0.1:8000/word_similarity`
 
@@ -42,7 +42,7 @@ function onSentSubmit(event){
     const values = {
         "id_": "sw",
         "question": sent,
-        "keyword": s_word
+        "keywords": s_word
     }
     const url = `http://127.0.0.1:8000/sentence_similarity`
 
@@ -68,7 +68,7 @@ function onQuestionSubmit(event){
     const values = {
         "id_": "qk",
         "question": question_,
-        "keyword": keyword_
+        "keywords": keyword_
     }
     const url = `http://127.0.0.1:8000/check_question`
 
