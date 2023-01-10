@@ -14,7 +14,7 @@ function onSentSubmit(event){
         "question": sent,
         "keywords": s_word
     }
-    const url = `http://127.0.0.1:8000/sentence_similarity`
+    const url = `http://45.32.89.216/similarity/sentence`
 
     axios.post(url, values)
     .then((res) => {
@@ -33,6 +33,7 @@ const isValid = document.querySelector('#is-valid')
 
 function onQuestionSubmit(event){
     event.preventDefault();
+    isValid.classList.add(HIDDEN_CLASSNAME);
     const question_ = question.value;
     const keyword_ = keywords.value;
     const values = {
@@ -40,7 +41,7 @@ function onQuestionSubmit(event){
         "question": question_,
         "keywords": keyword_
     }
-    const url = `http://127.0.0.1:8000/check_question`
+    const url = `http://45.32.89.216/similarity/question`
 
     axios.post(url, values)
     .then((res) => {
