@@ -10,14 +10,12 @@ import json, csv
 import logging
 from datetime import datetime
 
-
-origins = ["*"]
-
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -35,7 +33,7 @@ class Input(BaseModel):
     question: str
     keywords: str
 
-@app.post("/sentence_similarity")
+@app.post("/similarity/sentence")
 def check_sentence(input: Input):
     id_ = input.id_
     question = nlp(input.question)
@@ -51,7 +49,11 @@ def check_sentence(input: Input):
 
     return data
 
-@app.post("/check_question")
+@app.get("/")
+def test():
+    return {"hello": "world"}
+
+@app.post("/similarity/question")
 def check_word(input: Input):
     id_ = input.id_
     question = nlp(input.question)
@@ -80,8 +82,8 @@ def check_word(input: Input):
                 question_info["included"].append(included)
                 record = {'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                         'id_': id_,
-                        'question': question.text,
-                        'keywords': ','.join([k.text for k in keywords]),
+                        'question': input.question,
+                        'keywords': input.keywords,
                         'question_token': included["question_token"],
                         'keyword': included["keyword"],
                         'similarity': included["similarity"]}
