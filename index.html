@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,18 +9,28 @@
     <link rel="stylesheet" href="css/style.css">
     <title>Similarity Check</title>
 </head>
+
 <body>
-    <h2> Check Question </h2>
+    <h2> Check English Question </h2>
     <form id="question-form" class="hidden">
-        <textarea id="question" placeholder="Type a question (ex. How many people had gone through the computer training?",></textarea>
+        <textarea id="question"
+            placeholder="Type a question (ex. How many people had gone through the computer training?" ,></textarea>
         <textarea id="keywords" placeholder="Type keywords (ex. individuals, computers)"></textarea>
         <input type="submit" value="Check" />
     </form>
     <h2 id="is-valid" class="hidden"></h2>
+    <h2> Check Korean Question </h2>
+    <form id="k-question-form" class="hidden">
+        <textarea id="k-question" placeholder="Type a question (ex. 소리 파형을 측정할 때, 종파를 구분하려면, 어떤 측정기가 필요할까요?"
+            ,></textarea>
+        <textarea id="k-keywords" placeholder="Type keywords (ex. 파형, 필요)"></textarea>
+        <input type="submit" value="Check" />
+    </form>
+    <h2 id="k-is-valid" class="hidden"></h2>
     <h2> Similarity between a Word and a Sentence </h2>
     <form id="sents-form" class="hidden">
         <textarea id="sent1" placeholder="sent"></textarea>
-        <textarea id="word"  placeholder="word"></textarea>
+        <textarea id="word" placeholder="word"></textarea>
         <input type="submit" value="Similarity" />
     </form>
     <h2 id="sent-similarity" class="hidden"></h2>
