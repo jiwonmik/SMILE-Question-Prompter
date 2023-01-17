@@ -48,8 +48,8 @@ function onQuestionSubmit(event) {
             console.log(res)
             console.log(res.data)
             data = res.data
-            included = res.data.included[0]
-            if (data.is_valid)
+            valid = res.data.valid
+            if (valid)
                 isValid.innerText = `It is a valid question.`;
             else
                 isValid.innerText = `It is not a valid question.`;
@@ -80,8 +80,8 @@ function onkQuestionSubmit(event) {
             console.log(res)
             console.log(res.data)
             data = res.data
-            included = res.data.included[0]
-            if (data.is_valid)
+            valid = res.data.valid
+            if (valid)
                 kisValid.innerText = `It is a valid question.`;
             else
                 kisValid.innerText = `It is not a valid question.`;
