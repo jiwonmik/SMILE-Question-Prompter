@@ -113,42 +113,49 @@ def check_word(input: Input):
 
     question_info={
         "question": question.text,
-        "is_valid": False,
-        "included": [],
-        "not_included":[]
+        "valid": True,
+        "keywords_result":[]
     }
-    data=[]
-    record = {'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'id_': id_,
-        'question': input.question,
-        'keywords': input.keywords,
-        'question_token': "",
-        'keyword': "",
-        'similarity': 0}
-    for word, vector in vectors:
-        for keyword in keywords:
+
+    # data=[]
+    # record = {'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+    #     'id_': id_,
+    #     'question': input.question,
+    #     'keywords': input.keywords,
+    #     'question_token': "",
+    #     'keyword': "",
+    #     'similarity': 0}
+    for keyword in keywords:
+        keyword_result={
+            "keyword": keyword.text,
+            "result": {
+                "included":[],
+                "not_included":[]
+            }
+        }
+        for word, vector in vectors:
             sim=vector.similarity(keyword)
-            included = { 
+            result={
                 "question_token": word, 
-                "keyword": keyword.text,
                 "similarity": round(sim,3)}
             if sim > 0.5:
-                question_info["is_valid"]=True
-                question_info["included"].append(included)
-
-                new_record=record
-                new_record["question_token"] = included["question_token"]
-                new_record["keyword"] = included["keyword"]
-                new_record["similarity"] = included["similarity"]
-
-                data.append(record)
+                keyword_result["result"]["included"].append(result)
+                # new_record=record
+                # new_record["question_token"] = included["question_token"]
+                # new_record["keyword"] = included["keyword"]
+                # new_record["similarity"] = included["similarity"]
+                # data.append(record)
             else:
                 if sim > 0.2:
-                    question_info["not_included"].append(included)
-    # write to qk_log.csv file
-    if question_info["is_valid"] == False:
-        data.append(record)
+                    keyword_result["result"]["not_included"].append(result)
+        if len(keyword_result["result"]["included"])==0:
+            question_info["valid"]=False
+        question_info["keywords_result"].append(keyword_result)
 
-    write_req_res(data, '/home/jiwon/myapi/logs/qk_log.csv')
+    # write to qk_log.csv file
+    # if question_info["is_valid"] == False:
+    #     data.append(record)
+
+    # write_req_res(data, '/home/jiwon/myapi/logs/qk_log.csv')
     
     return question_info
