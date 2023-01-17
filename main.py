@@ -61,7 +61,8 @@ def test():
 def check_word(input: Input):
     id_ = input.id_
     question = konlp(input.question)
-    keywords = [konlp(word) for word in input.keywords.split(',')]
+    keywords = input.keywords.replace(" ","").split(",")
+    keywords = [konlp(word) for word in keywords]
 
     # lemmatization
     lemmas = [token.lemma_ for token in question]
@@ -100,7 +101,8 @@ def check_word(input: Input):
 
                 data.append(record)
             else:
-                question_info["not_included"].append(included)
+                if sim > 0.2:
+                    question_info["not_included"].append(included)
     # write to qk_log.csv file
     if question_info["is_valid"] == False:
         data.append(record)
@@ -114,7 +116,8 @@ def check_word(input: Input):
 def check_word(input: Input):
     id_ = input.id_
     question = nlp(input.question)
-    keywords = [nlp(word) for word in input.keywords.split(',')]
+    keywords = input.keywords.replace(" ","").split(",")
+    keywords = [nlp(word) for word in keywords]
 
     # lemmatization
     question_token = [token.lemma_ for token in question]
@@ -152,7 +155,8 @@ def check_word(input: Input):
 
                 data.append(record)
             else:
-                question_info["not_included"].append(included)
+                if sim > 0.2:
+                    question_info["not_included"].append(included)
     # write to qk_log.csv file
     if question_info["is_valid"] == False:
         data.append(record)
