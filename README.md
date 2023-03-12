@@ -1,2 +1,1 @@
-# prettier-eslint
-Initial Setting for ReactJS + Typescript + Prettier + ESLint
+# SMILE-Question-Prompter
