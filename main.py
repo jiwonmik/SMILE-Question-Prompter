@@ -5,7 +5,6 @@ from starlette.background import BackgroundTask
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
-
 app = FastAPI()
 
 app.add_middleware(
@@ -18,7 +17,6 @@ app.add_middleware(
 
 nlp = spacy.load("en_core_web_lg")
 konlp = spacy.load("ko_core_news_lg")
-
 
 class Input(BaseModel):
     question: str
@@ -60,21 +58,22 @@ def check_word(input: Input):
             result = {
                 "question_token": word,
                 "similarity": round(sim, 3)}
+
             if sim > 0.5:
                 keyword_result["result"]["included"].append(result)
             else:
                 if sim > 0.2:
                     keyword_result["result"]["not_included"].append(result)
-        if len(keyword_result["result"]["included"]) + len(keyword_result["result"]["identical"]) == 0:
-            question_info["valid"] = False
-        question_info["keywords_result"].append(keyword_result)
+
+            if len(keyword_result["result"]["included"]) + len(keyword_result["result"]["identical"]) == 0:
+                question_info["valid"] = False
+            question_info["keywords_result"].append(keyword_result)
 
     return question_info
 
 
 @app.post("/similarity/question")
 def check_word(input: Input):
-    print("input is ", input)
     question = nlp(input.question)
     keywords = input.keywords.replace(" ","").split(",")
     keywords = [nlp(word) for word in keywords]
