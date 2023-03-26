@@ -8,8 +8,8 @@ function App() {
         <Heading my={10}>Smile NLP Test</Heading>
         <Tabs variant="soft-rounded" colorScheme="red">
           <TabList mx={5}>
-            <Tab>Korean</Tab>
             <Tab>English</Tab>
+            <Tab>Korean</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
