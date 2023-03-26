@@ -16,11 +16,6 @@ function Prompter() {
     });
   };
 
-  // const { data, refetch } = useQuery(['similarity', input], () => fetchData(input), {
-  //   refetchOnWindowFocus: false,
-  //   enabled: false, // disable this query from automatically running
-  // });
-
   const OnCheckHandle = () => {
     fetchData(input).then((res) => {
       setSimilarity(() => {
@@ -32,7 +27,6 @@ function Prompter() {
       });
     });
   };
-  console.log(similairty);
 
   return (
     <>
