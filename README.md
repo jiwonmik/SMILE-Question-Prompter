@@ -1,6 +1,24 @@
 # SMILE-Question-Prompter
 
-This is a simple API for developing **😊[SMILE](https://portal.smile-pi.org/smile/) Question Prompter**
+This is a simple API for developing **😊[SMILE](https://portal.smile-pi.org/) Question Prompter.**
+
+You can test with [demo page](https://nlp-for-smile.vercel.app/).
+
+## 📑 Table of Contents
+
+- [Features](#features)
+- [Setup](#setup)
+  - [Question Prompter API](#🔴-question-propmpter-api)
+  - [Question Prompter Demo](#🌟-question-propmpter-demo)
+- [Technologies](#technologies)
+
+## ✨ Features
+
+- API will check similarity between your every word from question sentence and keywords by its [word-vector from spacy](https://spacy.io/api/lexeme#similarity).
+
+## Setup
+
+## 🔴 Question Propmpter API
 
 ### ☝️ Requirements
 
@@ -51,4 +69,12 @@ Run the development server.
 uvicorn main:app --reload
 ```
 
-### 💻 How to use - Gunicorn Service
+## 🌟 Question Propmpter Demo
+
+You can check with [Demo Page](https://nlp-for-smile.vercel.app/).
+
+```shell
+git clone https://github.com/jiwonmik/NLP-for-SMILE.git
+npm install
+npm run dev
+```
