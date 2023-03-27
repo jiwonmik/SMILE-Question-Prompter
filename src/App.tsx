@@ -13,10 +13,10 @@ function App() {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <Prompter />
+              <Prompter option="eng" />
             </TabPanel>
             <TabPanel>
-              <Prompter />
+              <Prompter option="kor" />
             </TabPanel>
           </TabPanels>
         </Tabs>
