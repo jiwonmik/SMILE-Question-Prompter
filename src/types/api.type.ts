@@ -1,4 +1,9 @@
-export interface Input {
+export interface IInput {
+  question: string;
+  keyword: string;
+}
+
+export interface IReqBody {
   question: string;
   keywords: string;
 }
