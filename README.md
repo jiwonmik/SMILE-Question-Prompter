@@ -2,7 +2,7 @@
 
 This is a simple API for developing **😊[SMILE](https://portal.smile-pi.org/) Question Prompter.**
 
-You can test with [demo page](https://nlp-for-smile.vercel.app/).
+You can test with [demo page](https://smile-question-prompter.vercel.app/).
 
 ## 📑 Table of Contents
 
