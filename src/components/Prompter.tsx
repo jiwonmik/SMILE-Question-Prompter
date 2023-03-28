@@ -11,6 +11,7 @@ import {
   Input,
   Grid,
   TagCloseButton,
+  SimpleGrid,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { IInput, IReqBody, SimilarityRes } from 'types/api.type';
@@ -100,14 +101,14 @@ function Prompter({ option }: PrompterProps) {
         <Button onClick={onAddHandle}>Add</Button>
         <Button onClick={onResetHandle}>Reset</Button>
       </HStack>
-      <Grid templateColumns="repeat(4, 1fr)" gap={5} mb="5">
+      <SimpleGrid columns={3} spacing={5} mb="5">
         {keywords.map((keyword, index) => (
           <Tag key={index} size="lg" colorScheme={'red'} borderRadius="full" width={'fit-content'}>
             <TagLabel>{keyword}</TagLabel>
             <TagCloseButton onClick={() => onDeleteHandle(index)} />
           </Tag>
         ))}
-      </Grid>
+      </SimpleGrid>
       <Textarea
         value={input?.question}
         onChange={(e) =>
