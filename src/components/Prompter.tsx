@@ -9,9 +9,9 @@ import {
   TagLabel,
   HStack,
   Input,
-  Grid,
   TagCloseButton,
   SimpleGrid,
+  Divider,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { IInput, IReqBody, SimilarityRes } from 'types/api.type';
@@ -127,19 +127,42 @@ function Prompter({ option }: PrompterProps) {
       </Button>
       {similairty?.question !== undefined ? (
         <>
-          <Box borderRadius={'md'} bg="red.100" padding={'5'} mb={'5'}>
+          <Box borderRadius={'md'} bg="gray.100" padding={'5'} mb={'5'}>
             <Text>Your question: {similairty?.question}</Text>
           </Box>
           {similairty?.valid ? (
-            <Alert status="success">
+            <Alert status="success" mb="5">
               <AlertIcon />
-              Valid
+              Valid Question
             </Alert>
           ) : (
-            <Alert status="error">
+            <Alert status="error" mb="5">
               <AlertIcon />
-              Unvalid
+              Unvalid Question
             </Alert>
+          )}
+          <Divider colorScheme={'blue'} mb="5" />
+          {similairty.keywords_result.map((res, index) =>
+            res.result.identical.length + res.result.included.length == 0 ? (
+              <Box key={index} borderRadius={'md'} bg="red.100" padding={'5'} mb={'5'}>
+                <Text>Keyword &apos;{res.keyword}&apos; is not included</Text>
+              </Box>
+            ) : res.result.identical.length !== 0 ? (
+              <Box borderRadius={'md'} bg="yellow.100" padding={'5'} mb={'5'}>
+                <Text>Keyword: {res.result.identical}</Text>
+                <Text>similarity: identical word</Text>
+              </Box>
+            ) : (
+              <Box borderRadius={'md'} bg="green.100" padding={'5'} mb={'5'}>
+                <Text>Keyword: {res.keyword}</Text>
+                {res.result.included.map((res, index) => (
+                  <>
+                    <Text key={index}>question token: {res.question_token} </Text>
+                    <Text>similarity: {res.similarity}</Text>
+                  </>
+                ))}
+              </Box>
+            )
           )}
         </>
       ) : null}
