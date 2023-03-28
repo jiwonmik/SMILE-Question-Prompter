@@ -14,6 +14,7 @@ interface SimilarityInfo {
 }
 
 interface KeywordResInfo {
+  identical: string[];
   included: SimilarityInfo[];
   not_included: SimilarityInfo[];
 }
