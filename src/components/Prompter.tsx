@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { IInput, IReqBody, SimilarityRes } from 'types/api.type';
 import { fetchData, fetchKorData } from 'api/api';
 import { PrompterProps } from 'types/type';
+import SimilarityList from './SimilarityList';
 
 function Prompter({ option }: PrompterProps) {
   const InitialInput = {
@@ -125,47 +126,11 @@ function Prompter({ option }: PrompterProps) {
       <Button onClick={OnCheckHandle} colorScheme={'red'} width="full" my={5}>
         Check
       </Button>
-      {similairty?.question !== undefined ? (
-        <>
-          <Box borderRadius={'md'} bg="gray.100" padding={'5'} mb={'5'}>
-            <Text>Your question: {similairty?.question}</Text>
-          </Box>
-          {similairty?.valid ? (
-            <Alert status="success" mb="5">
-              <AlertIcon />
-              Valid Question
-            </Alert>
-          ) : (
-            <Alert status="error" mb="5">
-              <AlertIcon />
-              Unvalid Question
-            </Alert>
-          )}
-          <Divider colorScheme={'blue'} mb="5" />
-          {similairty.keywords_result.map((res, index) =>
-            res.result.identical.length + res.result.included.length == 0 ? (
-              <Box key={index} borderRadius={'md'} bg="red.100" padding={'5'} mb={'5'}>
-                <Text>Keyword &apos;{res.keyword}&apos; is not included</Text>
-              </Box>
-            ) : res.result.identical.length !== 0 ? (
-              <Box borderRadius={'md'} bg="yellow.100" padding={'5'} mb={'5'}>
-                <Text>Keyword: {res.result.identical}</Text>
-                <Text>similarity: identical word</Text>
-              </Box>
-            ) : (
-              <Box borderRadius={'md'} bg="green.100" padding={'5'} mb={'5'}>
-                <Text>Keyword: {res.keyword}</Text>
-                {res.result.included.map((res, index) => (
-                  <>
-                    <Text key={index}>question token: {res.question_token} </Text>
-                    <Text>similarity: {res.similarity}</Text>
-                  </>
-                ))}
-              </Box>
-            )
-          )}
-        </>
-      ) : null}
+      <SimilarityList
+        question={similairty?.question}
+        valid={similairty?.valid}
+        keywords_result={similairty?.keywords_result}
+      />
     </>
   );
 }

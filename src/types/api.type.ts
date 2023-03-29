@@ -25,7 +25,7 @@ interface KeywordRes {
 }
 
 export interface SimilarityRes {
-  question: string;
-  valid: boolean;
-  keywords_result: KeywordRes[];
+  question?: string;
+  valid?: boolean;
+  keywords_result?: KeywordRes[];
 }
