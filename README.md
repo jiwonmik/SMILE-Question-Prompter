@@ -1,6 +1,8 @@
 # SMILE-Question-Prompter
 
-This is a simple API for developing **😊[SMILE](https://portal.smile-pi.org/) Question Prompter.**
+In SMILE, the question prompter should check student's question if it includes all given keywords by teachers or group leaders.
+
+This is an API for developing **😊[SMILE](https://portal.smile-pi.org/) Question Prompter.**
 
 You can test with [demo page](https://smile-question-prompter.vercel.app/).
 
@@ -14,7 +16,10 @@ You can test with [demo page](https://smile-question-prompter.vercel.app/).
 
 ## ✨ Features
 
-- API will check similarity between your every word from question sentence and keywords by its [word-vector from spacy](https://spacy.io/api/lexeme#similarity).
+Enter `keywords` that should be included in the `questions`, and then enter your question. Then, check if your question is a valid one.
+
+- If you click ✅ **check with spaCy**, API will get similarity between every word from question sentence and keywords by its [word-vector from spacy](https://spacy.io/api/lexeme#similarity), and chekc if your question is a valid question.
+- If you click ✅ **check with [OpenAI](https://openai.com/blog/openai-api)**, API will ask OpenAI model `"gpt-3.5-turbo"` if your question is a valid question.
 
 ## Setup
 
@@ -25,6 +30,7 @@ You can test with [demo page](https://smile-question-prompter.vercel.app/).
 ```
 spacy
 fastapi
+openai
 ```
 
 ## ✨ spaCy
@@ -36,8 +42,8 @@ fastapi
 See [here](https://spacy.io/usage) for installing spaCy
 
 ```shell
-conda create -n nlp
-conda activate nlp
+conda create -n smile
+conda activate smile
 conda install -c conda-forge spacy
 ```
 
@@ -60,7 +66,7 @@ konlp = spacy.load("ko_core_news_lg")
 Activate conda environment you just created.
 
 ```shell
-conda activate nlp
+conda activate smile
 ```
 
 Run the development server.
@@ -71,10 +77,10 @@ uvicorn main:app --reload
 
 ## 🌟 Question Propmpter Demo
 
-You can check with [Demo Page](https://nlp-for-smile.vercel.app/).
+You can check with [Demo Page](https://smile-question-prompter.vercel.app/).
 
 ```shell
-git clone https://github.com/jiwonmik/NLP-for-SMILE.git
+git clone https://github.com/jiwonmik/SMILE-Question-Prompter.git
 npm install
 npm run dev
 ```
