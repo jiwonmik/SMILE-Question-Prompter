@@ -1,21 +1,16 @@
 import {
   Textarea,
   Button,
-  Text,
-  Box,
-  Alert,
-  AlertIcon,
   Tag,
   TagLabel,
   HStack,
   Input,
   TagCloseButton,
   SimpleGrid,
-  Divider,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { IInput, IReqBody, SimilarityRes } from 'types/api.type';
-import { fetchData, fetchKorData } from 'api/api';
+import { IInput, IReqBody, IValidityRes } from 'types/api.type';
+import { getSpacyRes, getSpacyKorRes, getOpenAIRes } from 'api/api';
 import { PrompterProps } from 'types/type';
 import SimilarityList from './SimilarityList';
 
@@ -47,22 +42,23 @@ function Prompter({ option }: PrompterProps) {
     });
   };
 
-  const [similairty, setSimilarity] = useState<SimilarityRes>();
+  const [validityRes, setValidityRes] = useState<IValidityRes>();
+
   const questionPlaceholder =
     option === 'eng'
       ? 'ex. How many people had gone through the computer training?'
       : 'ex. 소리 파형을 측정할 때, 종파를 구분하려면, 어떤 측정기가 필요할까요?';
   const keywordsPlaceholder = option === 'eng' ? 'ex. Individuals, computers' : 'ex. 파형, 필요';
 
-  const OnCheckHandle = () => {
+  const onSpacyCheck = () => {
     const body = {
       question: input?.question,
       keywords: keywords.join(', '),
     } as IReqBody;
     switch (option) {
       case 'eng': {
-        fetchData(body).then((res) => {
-          setSimilarity(() => {
+        getSpacyRes(body).then((res) => {
+          setValidityRes(() => {
             return {
               question: res?.data.question,
               valid: res?.data.valid,
@@ -73,8 +69,8 @@ function Prompter({ option }: PrompterProps) {
         break;
       }
       case 'kor': {
-        fetchKorData(body).then((res) => {
-          setSimilarity(() => {
+        getSpacyKorRes(body).then((res) => {
+          setValidityRes(() => {
             return {
               question: res?.data.question,
               valid: res?.data.valid,
@@ -84,6 +80,22 @@ function Prompter({ option }: PrompterProps) {
         });
       }
     }
+  };
+
+  const onOpenAICheck = () => {
+    const body = {
+      question: input?.question,
+      keywords: keywords.join(', '),
+    } as IReqBody;
+    getOpenAIRes(body).then((res) => {
+      setValidityRes(() => {
+        return {
+          question: res?.data.question,
+          valid: res?.data.valid,
+          gpt_response: res?.data.gpt_response,
+        };
+      });
+    });
   };
 
   return (
@@ -123,13 +135,18 @@ function Prompter({ option }: PrompterProps) {
         height="100px"
         resize={'none'}
       />
-      <Button onClick={OnCheckHandle} colorScheme={'red'} width="full" my={5}>
-        Check
+      <Button onClick={onSpacyCheck} colorScheme={'blue'} width="full">
+        Check with spaCy
       </Button>
+      <Button onClick={onOpenAICheck} colorScheme={'red'} width="full" my={5}>
+        Check with OpenAI
+      </Button>
+
       <SimilarityList
-        question={similairty?.question}
-        valid={similairty?.valid}
-        keywords_result={similairty?.keywords_result}
+        question={validityRes?.question}
+        valid={validityRes?.valid}
+        keywords_result={validityRes?.keywords_result}
+        gpt_response={validityRes?.gpt_response}
       />
     </>
   );

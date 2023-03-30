@@ -4,7 +4,7 @@ import Prompter from '@components/Prompter';
 function App() {
   return (
     <Container my={5} centerContent>
-      <Heading my={10}>Smile NLP Test</Heading>
+      <Heading my={10}>SMILE</Heading>
       <Tabs width="full" variant="soft-rounded" colorScheme="red">
         <TabList mx={5}>
           <Tab>English</Tab>

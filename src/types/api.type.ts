@@ -8,15 +8,15 @@ export interface IReqBody {
   keywords: string;
 }
 
-interface SimilarityInfo {
+interface SpacyResInfo {
   question_token: string;
   similarity: number;
 }
 
 interface KeywordResInfo {
   identical: string[];
-  included: SimilarityInfo[];
-  not_included: SimilarityInfo[];
+  included: SpacyResInfo[];
+  not_included: SpacyResInfo[];
 }
 
 interface KeywordRes {
@@ -24,8 +24,9 @@ interface KeywordRes {
   result: KeywordResInfo;
 }
 
-export interface SimilarityRes {
+export interface IValidityRes {
   question?: string;
   valid?: boolean;
   keywords_result?: KeywordRes[];
+  gpt_response?: string;
 }

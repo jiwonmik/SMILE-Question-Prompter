@@ -3,12 +3,17 @@ import { IReqBody } from 'types/api.type';
 
 const BASE_URL = 'https://www.smile-similarity.org/similarity/question';
 
-export const fetchData = async (input: IReqBody) => {
+export const getSpacyRes = async (input: IReqBody) => {
   const response = await axios.post(`${BASE_URL}`, input);
   return response;
 };
 
-export const fetchKorData = async (input: IReqBody) => {
+export const getSpacyKorRes = async (input: IReqBody) => {
   const response = await axios.post(`${BASE_URL}/korean`, input);
+  return response;
+};
+
+export const getOpenAIRes = async (input: IReqBody) => {
+  const response = await axios.post(`${BASE_URL}/gpt`, input);
   return response;
 };

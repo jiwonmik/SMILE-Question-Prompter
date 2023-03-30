@@ -4,12 +4,15 @@ from fastapi import FastAPI
 from starlette.background import BackgroundTask
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from prompter_gpt import getGPTResponse
 
 app = FastAPI()
 
+origins = ["http://localhost:5173", "https://smile-question-prompter.vercel.app"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -18,9 +21,11 @@ app.add_middleware(
 nlp = spacy.load("en_core_web_lg")
 konlp = spacy.load("ko_core_news_lg")
 
+
 class Input(BaseModel):
     question: str
     keywords: str
+
 
 @app.post("/similarity/question/korean")
 def check_word(input: Input):
@@ -28,11 +33,7 @@ def check_word(input: Input):
     keywords = input.keywords.replace(" ", "").split(",")
     keywords = [konlp(word) for word in keywords]
 
-    question_info = {
-        "question": question.text,
-        "valid": True,
-        "keywords_result": []
-    }
+    question_info = {"question": question.text, "valid": True, "keywords_result": []}
 
     # lemmatization
     lemmas = [token.lemma_ for token in question]
@@ -42,11 +43,7 @@ def check_word(input: Input):
     for keyword in keywords:
         keyword_result = {
             "keyword": keyword.text,
-            "result": {
-                "included": [],
-                "not_included": [],
-                "identical": []
-            },
+            "result": {"included": [], "not_included": [], "identical": []},
         }
         for word, vector in vectors:
             # if it is exactly same word
@@ -55,9 +52,7 @@ def check_word(input: Input):
                 continue
             # check similarity
             sim = vector.similarity(keyword)
-            result = {
-                "question_token": word,
-                "similarity": round(sim, 3)}
+            result = {"question_token": word, "similarity": round(sim, 3)}
 
             if sim > 0.5:
                 keyword_result["result"]["included"].append(result)
@@ -65,7 +60,11 @@ def check_word(input: Input):
                 if sim > 0.2:
                     keyword_result["result"]["not_included"].append(result)
 
-            if len(keyword_result["result"]["included"]) + len(keyword_result["result"]["identical"]) == 0:
+            if (
+                len(keyword_result["result"]["included"])
+                + len(keyword_result["result"]["identical"])
+                == 0
+            ):
                 question_info["valid"] = False
             question_info["keywords_result"].append(keyword_result)
 
@@ -75,14 +74,10 @@ def check_word(input: Input):
 @app.post("/similarity/question")
 def check_word(input: Input):
     question = nlp(input.question)
-    keywords = input.keywords.replace(" ","").split(",")
+    keywords = input.keywords.replace(" ", "").split(",")
     keywords = [nlp(word) for word in keywords]
 
-    question_info = {
-        "question": question.text,
-        "valid": True,
-        "keywords_result": []
-    }
+    question_info = {"question": question.text, "valid": True, "keywords_result": []}
 
     # lemmatization
     question_token = [token.lemma_ for token in question]
@@ -91,11 +86,7 @@ def check_word(input: Input):
     for keyword in keywords:
         keyword_result = {
             "keyword": keyword.text,
-            "result": {
-                "included": [],
-                "not_included": [],
-                "identical": []
-            }
+            "result": {"included": [], "not_included": [], "identical": []},
         }
         for word, vector in vectors:
             # if it is exactly same word
@@ -104,16 +95,36 @@ def check_word(input: Input):
                 continue
             # check similarity
             sim = vector.similarity(keyword)
-            result = {
-                "question_token": word,
-                "similarity": round(sim, 3)}
+            result = {"question_token": word, "similarity": round(sim, 3)}
             if sim > 0.5:
                 keyword_result["result"]["included"].append(result)
             else:
                 if sim > 0.2:
                     keyword_result["result"]["not_included"].append(result)
-        if len(keyword_result["result"]["included"]) + len(keyword_result["result"]["identical"]) == 0:
+        if (
+            len(keyword_result["result"]["included"])
+            + len(keyword_result["result"]["identical"])
+            == 0
+        ):
             question_info["valid"] = False
         question_info["keywords_result"].append(keyword_result)
+
+    return question_info
+
+
+@app.post("/similarity/question/gpt")
+def prompter(input: Input):
+    gpt_input = f"question: {input.question} keywords: {input.keywords}"
+    print(gpt_input)
+    gpt_response = getGPTResponse(gpt_input)
+
+    question_info = {
+        "question": input.question,
+        "valid": True,
+        "gpt_response": gpt_response,
+    }
+
+    if "Prompter Check: Invalid" in gpt_response:
+        question_info["valid"] = False
 
     return question_info
