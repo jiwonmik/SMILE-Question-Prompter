@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { IReqBody } from 'types/api.type';
 
-const BASE_URL = 'https://www.smile-similarity.org/similarity/question';
+const BASE_URL = 'https://www.smile-similarity.org/smile/similarity/question';
 
 export const getSpacyRes = async (input: IReqBody) => {
   const response = await axios.post(`${BASE_URL}`, input);
