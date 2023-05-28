@@ -1,20 +1,22 @@
 # SMILE-Question-Prompter
 
-In SMILE, the question prompter should check student's question if it includes all given keywords by teachers or group leaders.
+In SMILE, the question prompter should check student's question if it includes all given keywords set by teachers or group leaders.
 
-This is an API for developing **😊[SMILE](https://portal.smile-pi.org/) Question Prompter.**
+This is a server for **😊[SMILE](https://smile.seedsofempowerment.org/) Question Prompter.**
 
-You can test with [demo page](https://smile-question-prompter.vercel.app/).
+✨ [***SMILE has been updated to version 3! Check it out!***](https://smile.seedsofempowerment.org/)
+
+You can test **Prompter** server using Spacy and OpenAI API with [demo page](https://smile-question-prompter.vercel.app/).
 
 ## 📑 Table of Contents
 
 - [Features](#features)
 - [Setup](#setup)
-  - [Question Prompter API](#🔴-question-propmpter-api)
-  - [Question Prompter Demo](#🌟-question-propmpter-demo)
+  - [Question Prompter API](#question-propmpter-api)
+  - [Question Prompter Demo](#question-propmpter-demo)
 - [Technologies](#technologies)
 
-## ✨ Features
+## Features
 
 Enter `keywords` that should be included in the `questions`, and then enter your question. Then, check if your question is a valid one.
 
@@ -23,7 +25,7 @@ Enter `keywords` that should be included in the `questions`, and then enter your
 
 ## Setup
 
-## 🔴 Question Propmpter API
+## Question Propmpter API
 
 ### ☝️ Requirements
 
@@ -75,7 +77,7 @@ Run the development server.
 uvicorn main:app --reload
 ```
 
-## 🌟 Question Propmpter Demo
+## Question Propmpter Demo
 
 You can check with [Demo Page](https://smile-question-prompter.vercel.app/).
 
@@ -84,3 +86,8 @@ git clone https://github.com/jiwonmik/SMILE-Question-Prompter.git
 npm install
 npm run dev
 ```
+
+## Technologies
+⚒️ **Backend** - Python, FastAPI, Nginx, spaCy, OpneAI API, Amazone Route 53, Gunicorn
+
+🪄 **Frontend** - Vite + ReactJS, Typescript
