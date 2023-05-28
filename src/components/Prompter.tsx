@@ -21,8 +21,14 @@ function Prompter({ option }: PrompterProps) {
   };
   const [input, setInput] = useState<IInput>(InitialInput);
   const [keywords, setKeywords] = useState<string[]>([]);
+  const [empty, setEmpty] = useState(false);
 
   const onAddHandle = () => {
+    if (input.keyword === '') {
+      setEmpty(true);
+      return;
+    }
+    setEmpty(false);
     setKeywords((prev) => {
       return [...prev, ...input.keyword.replace(' ', '').split(',')];
     });
@@ -30,6 +36,7 @@ function Prompter({ option }: PrompterProps) {
       return { ...prev, keyword: '' };
     });
   };
+
   const onResetHandle = () => {
     setKeywords(() => {
       return [];
@@ -100,9 +107,9 @@ function Prompter({ option }: PrompterProps) {
 
   return (
     <>
-      <HStack mb="5">
+      <HStack className="keywords-input" mb="2">
         <Input
-          value={input?.keyword}
+          value={input.keyword}
           onChange={(e) =>
             setInput((prev) => {
               return { ...prev, keyword: e.target.value };
@@ -114,6 +121,12 @@ function Prompter({ option }: PrompterProps) {
         <Button onClick={onAddHandle}>Add</Button>
         <Button onClick={onResetHandle}>Reset</Button>
       </HStack>
+      <h2
+        className="error-msg"
+        style={{ color: 'red', marginBottom: '20px', display: empty ? 'block' : 'none' }}
+      >
+        Please write your keywords.
+      </h2>
       <SimpleGrid columns={3} spacing={5} mb="5">
         {keywords.map((keyword, index) => (
           <Tag key={index} size="lg" colorScheme={'red'} borderRadius="full" width={'fit-content'}>
